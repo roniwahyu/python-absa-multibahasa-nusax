@@ -1,0 +1,6 @@
+app_id,error,scraped_at
+com.whatsapp,App not found. Status code 400 returned.,2025-07-03T11:22:01.138512
+com.facebook.katana,App not found. Status code 400 returned.,2025-07-03T11:22:02.238123
+com.instagram.android,App not found. Status code 400 returned.,2025-07-03T11:22:03.337889
+com.snapchat.android,App not found. Status code 400 returned.,2025-07-03T11:22:04.438302
+com.spotify.music,App not found. Status code 400 returned.,2025-07-03T11:22:05.555112

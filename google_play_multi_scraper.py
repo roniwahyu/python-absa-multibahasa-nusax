@@ -276,8 +276,8 @@ def main():
     ]
     
     # Configuration
-    COUNTRY = 'id'  # Indonesia
-    LANG = 'id'     # Indonesian
+    COUNTRY = 'jv'  # Indonesia
+    LANG = 'jv'     # Indonesian
     REVIEWS_PER_APP = 1000
     
     # Initialize scraper
