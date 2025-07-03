@@ -268,17 +268,30 @@ def main():
     """Main function to run the multi-app scraper."""
     # Define app IDs to scrape
     app_ids = [
-        'com.whatsapp',
-        'com.facebook.katana',
-        'com.instagram.android',
-        'com.snapchat.android',
-        'com.spotify.music'
+        # 'com.whatsapp',
+        # 'com.facebook.katana',
+        # 'com.instagram.android',
+        # 'com.snapchat.android',
+        # 'com.spotify.music'
+        'com.jago.digitalBanking', #bank jago
+        'id.co.bankbkemobile.digitalbank', #seabank
+        'com.btpn.dc', #btpn jenius
+        'com.bcadigital.blu', #bank bca
+        'com.bnc.finance' #neobank
     ]
+    # app_packages = [
+    # # 'com.alloapp.yump', #allo bank
+    # # 'com.senyumkubank.rekeningonline', #amarbank
+    # # 'id.aladinbank.mobile',
+    # # 'id.co.bankraya.apps', #rayabank
+    # #   'com.supercell.brawlstars',
+    # #   'jp.pokemon.pokemonunite',
+    # ]
     
     # Configuration
-    COUNTRY = 'jv'  # Indonesia
-    LANG = 'jv'     # Indonesian
-    REVIEWS_PER_APP = 1000
+    COUNTRY = 'id'  # Indonesia
+    LANG = 'id'     # Indonesian
+    REVIEWS_PER_APP = 2000
     
     # Initialize scraper
     scraper = GooglePlayMultiScraper(app_ids, COUNTRY, LANG)
