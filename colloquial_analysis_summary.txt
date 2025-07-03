@@ -1,0 +1,99 @@
+COLLOQUIAL INDONESIAN DATASET ANALYSIS
+==================================================
+
+Total stopword candidates: 1009
+
+By category:
+- Particles: 495 items
+- Pronouns: 48 items
+- Conjunctions: 10 items
+- Adverbs: 59 items
+- Question_Words: 48 items
+- Demonstratives: 39 items
+- Others: 310 items
+
+Sample candidates by category:
+
+Particles:
+  met -> selamat
+  ka -> kak
+  yaa -> ya
+  kk -> kakak
+  sii -> sih
+  jgn -> jangan
+  aja -> saja
+  rb -> ribu
+  yah -> ya
+  yg -> yang
+
+Pronouns:
+  akuuu -> aku
+  akau -> aku
+  sayaa -> saya
+  aq -> aku
+  dy -> dia
+  qt -> kita
+  kite -> kita
+  ak -> aku
+  diaa -> dia
+  km -> kamu
+
+Conjunctions:
+  karna -> karena
+  krn -> karena
+  ato -> atau
+  krna -> karena
+  dn -> dan
+  krena -> karena
+  atw -> atau
+  ktika -> ketika
+  kareno -> karena
+  jk -> jika
+
+Adverbs:
+  bgt -> banget
+  bngt -> banget
+  bgttt -> banget
+  bangat -> banget
+  bat -> banget
+  bet -> banget
+  bnget -> banget
+  bgtt -> banget
+  bgtttt -> banget
+  banger -> banget
+
+Question_Words:
+  kpan -> kapan
+  dmn -> dimana
+  gimna -> bagaimana
+  kpn -> kapan
+  pa -> apa
+  apaaa -> apa
+  epe -> apa
+  knpa -> kenapa
+  knp -> kenapa
+  brp -> berapa
+
+Demonstratives:
+  gitu -> begitu
+  gtu -> begitu
+  tu -> itu
+  ni -> ini
+  inih -> ini
+  gituuu -> begitu
+  iniw -> ini
+  ituu -> itu
+  gituh -> begitu
+  nii -> ini
+
+Others:
+  daah -> dah
+  udah -> sudah
+  yeee -> ya
+  yaaa -> ya
+  keles -> kali
+  gini -> begini
+  yanckh -> yang
+  kaliii -> kali
+  yakk -> ya
+  kayakk -> kayak
