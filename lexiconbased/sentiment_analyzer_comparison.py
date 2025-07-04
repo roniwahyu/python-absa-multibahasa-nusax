@@ -661,86 +661,123 @@ class SentimentAnalyzerComparison:
 
         return disagreements
 
-    def generate_detailed_report(self, save_to_file=True):
-        """Generate a detailed comparison report"""
+    def generate_detailed_report(self, save_to_file=True, format='markdown'):
+        """Generate a detailed comparison report in markdown or text format"""
         if not self.test_results:
             print("No test results available. Run comparison first.")
             return
 
+        if format.lower() == 'markdown':
+            return self._generate_markdown_report(save_to_file)
+        else:
+            return self._generate_text_report(save_to_file)
+
+    def _generate_markdown_report(self, save_to_file=True):
+        """Generate a detailed comparison report in Markdown format"""
+        train_data = self.test_results['training_data']
+        challenge_data = self.test_results['challenging_data']
+        speed = self.test_results['speed']
+
+        # Calculate overall scores
+        nb_overall = (train_data['naive_bayes']['f1_score'] + challenge_data['naive_bayes']['f1_score']) / 2
+        vader_overall = (train_data['vader']['f1_score'] + challenge_data['vader']['f1_score']) / 2
+        winner = "Indonesian Naive Bayes" if nb_overall > vader_overall else "VADER Indonesia"
+
+        # Calculate agreement rate
+        agreement = np.array(train_data['nb_predictions']) == np.array(train_data['vader_predictions'])
+        agreement_rate = np.mean(agreement)
+
         report = []
-        report.append("INDONESIAN SENTIMENT ANALYSIS COMPARISON REPORT")
-        report.append("=" * 60)
-        report.append(f"Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+        # Header
+        report.append("# Indonesian Sentiment Analysis Comparison Report")
+        report.append("")
+        report.append(f"**Generated on:** {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report.append("")
+        report.append("---")
         report.append("")
 
         # Executive Summary
-        report.append("EXECUTIVE SUMMARY")
-        report.append("-" * 20)
-
-        train_data = self.test_results['training_data']
-        challenge_data = self.test_results['challenging_data']
-
-        nb_overall = (train_data['naive_bayes']['f1_score'] + challenge_data['naive_bayes']['f1_score']) / 2
-        vader_overall = (train_data['vader']['f1_score'] + challenge_data['vader']['f1_score']) / 2
-
-        winner = "Naive Bayes" if nb_overall > vader_overall else "VADER Indonesia"
-        report.append(f"Overall Winner: {winner}")
-        report.append(f"Naive Bayes Overall F1: {nb_overall:.4f}")
-        report.append(f"VADER Indonesia Overall F1: {vader_overall:.4f}")
+        report.append("## 🎯 Executive Summary")
+        report.append("")
+        report.append(f"**Overall Winner:** {winner}")
+        report.append("")
+        report.append("| Method | Overall F1-Score | Training Data F1 | Challenging Cases F1 |")
+        report.append("|--------|------------------|------------------|---------------------|")
+        report.append(f"| Indonesian Naive Bayes | {nb_overall:.4f} | {train_data['naive_bayes']['f1_score']:.4f} | {challenge_data['naive_bayes']['f1_score']:.4f} |")
+        report.append(f"| VADER Indonesia | {vader_overall:.4f} | {train_data['vader']['f1_score']:.4f} | {challenge_data['vader']['f1_score']:.4f} |")
         report.append("")
 
-        # Detailed Results
-        report.append("DETAILED RESULTS")
-        report.append("-" * 20)
-
-        # Training data performance
-        report.append("Training Data Performance:")
-        report.append(f"  Naive Bayes - Accuracy: {train_data['naive_bayes']['accuracy']:.4f}, F1: {train_data['naive_bayes']['f1_score']:.4f}")
-        report.append(f"  VADER Indonesia - Accuracy: {train_data['vader']['accuracy']:.4f}, F1: {train_data['vader']['f1_score']:.4f}")
+        # Key Findings
+        report.append("### 🔍 Key Findings")
+        report.append("")
+        report.append(f"- **Method Agreement Rate:** {agreement_rate:.2%}")
+        report.append(f"- **Speed Winner:** {'VADER Indonesia' if speed['vader_avg_time'] < speed['naive_bayes_avg_time'] else 'Indonesian Naive Bayes'}")
+        report.append(f"- **Accuracy Winner:** {'Indonesian Naive Bayes' if nb_overall > vader_overall else 'VADER Indonesia'}")
         report.append("")
 
-        # Challenging cases performance
-        report.append("Challenging Cases Performance:")
-        report.append(f"  Naive Bayes - Accuracy: {challenge_data['naive_bayes']['accuracy']:.4f}, F1: {challenge_data['naive_bayes']['f1_score']:.4f}")
-        report.append(f"  VADER Indonesia - Accuracy: {challenge_data['vader']['accuracy']:.4f}, F1: {challenge_data['vader']['f1_score']:.4f}")
+        # Performance Comparison
+        report.append("## 📊 Performance Comparison")
         report.append("")
 
-        # Speed comparison
-        speed = self.test_results['speed']
-        report.append("Speed Comparison:")
-        report.append(f"  Training Time (Naive Bayes): {self.test_results['training_time']:.2f} seconds")
-        report.append(f"  Prediction Time (Naive Bayes): {speed['naive_bayes_avg_time']:.4f} seconds")
-        report.append(f"  Prediction Time (VADER): {speed['vader_avg_time']:.4f} seconds")
-        report.append(f"  Speed Winner: {'VADER' if speed['vader_avg_time'] < speed['naive_bayes_avg_time'] else 'Naive Bayes'}")
+        # Training Data Performance
+        report.append("### Training Data Performance")
+        report.append("")
+        report.append("| Metric | Indonesian Naive Bayes | VADER Indonesia | Winner |")
+        report.append("|--------|------------------------|-----------------|--------|")
+        report.append(f"| Accuracy | {train_data['naive_bayes']['accuracy']:.4f} | {train_data['vader']['accuracy']:.4f} | {'NB' if train_data['naive_bayes']['accuracy'] > train_data['vader']['accuracy'] else 'VADER'} |")
+        report.append(f"| Precision | {train_data['naive_bayes']['precision']:.4f} | {train_data['vader']['precision']:.4f} | {'NB' if train_data['naive_bayes']['precision'] > train_data['vader']['precision'] else 'VADER'} |")
+        report.append(f"| Recall | {train_data['naive_bayes']['recall']:.4f} | {train_data['vader']['recall']:.4f} | {'NB' if train_data['naive_bayes']['recall'] > train_data['vader']['recall'] else 'VADER'} |")
+        report.append(f"| F1-Score | {train_data['naive_bayes']['f1_score']:.4f} | {train_data['vader']['f1_score']:.4f} | {'NB' if train_data['naive_bayes']['f1_score'] > train_data['vader']['f1_score'] else 'VADER'} |")
         report.append("")
 
-        # Recommendations
-        report.append("RECOMMENDATIONS")
-        report.append("-" * 20)
+        # Challenging Cases Performance
+        report.append("### Challenging Cases Performance")
+        report.append("")
+        report.append("| Metric | Indonesian Naive Bayes | VADER Indonesia | Winner |")
+        report.append("|--------|------------------------|-----------------|--------|")
+        report.append(f"| Accuracy | {challenge_data['naive_bayes']['accuracy']:.4f} | {challenge_data['vader']['accuracy']:.4f} | {'NB' if challenge_data['naive_bayes']['accuracy'] > challenge_data['vader']['accuracy'] else 'VADER'} |")
+        report.append(f"| Precision | {challenge_data['naive_bayes']['precision']:.4f} | {challenge_data['vader']['precision']:.4f} | {'NB' if challenge_data['naive_bayes']['precision'] > challenge_data['vader']['precision'] else 'VADER'} |")
+        report.append(f"| Recall | {challenge_data['naive_bayes']['recall']:.4f} | {challenge_data['vader']['recall']:.4f} | {'NB' if challenge_data['naive_bayes']['recall'] > challenge_data['vader']['recall'] else 'VADER'} |")
+        report.append(f"| F1-Score | {challenge_data['naive_bayes']['f1_score']:.4f} | {challenge_data['vader']['f1_score']:.4f} | {'NB' if challenge_data['naive_bayes']['f1_score'] > challenge_data['vader']['f1_score'] else 'VADER'} |")
+        report.append("")
 
-        if nb_overall > vader_overall:
-            report.append("• Use Naive Bayes for higher accuracy requirements")
-            report.append("• Naive Bayes shows better performance on complex cases")
-            report.append("• Consider training time if real-time deployment is needed")
-        else:
-            report.append("• Use VADER Indonesia for faster predictions")
-            report.append("• VADER requires no training time")
-            report.append("• Good choice for real-time applications")
+        # Class-wise Performance
+        report.append("### Class-wise Performance (Training Data)")
+        report.append("")
 
-        if speed['vader_avg_time'] < speed['naive_bayes_avg_time']:
-            report.append("• VADER is significantly faster for predictions")
+        # Get class-wise metrics
+        nb_class_report = train_data['naive_bayes']['classification_report']
+        vader_class_report = train_data['vader']['classification_report']
 
-        report.append("• Consider ensemble approach combining both methods")
-        report.append("• Evaluate on your specific domain data before final decision")
+        classes = ['negative', 'neutral', 'positive']
+        report.append("| Class | Method | Precision | Recall | F1-Score |")
+        report.append("|-------|--------|-----------|--------|----------|")
 
-        report_text = "\n".join(report)
+        for cls in classes:
+            if cls in nb_class_report:
+                nb_metrics = nb_class_report[cls]
+                vader_metrics = vader_class_report.get(cls, {'precision': 0, 'recall': 0, 'f1-score': 0})
 
-        if save_to_file:
-            with open('sentiment_analysis_comparison_report.txt', 'w', encoding='utf-8') as f:
-                f.write(report_text)
-            print("✓ Detailed report saved to 'sentiment_analysis_comparison_report.txt'")
+                report.append(f"| {cls.title()} | Naive Bayes | {nb_metrics['precision']:.3f} | {nb_metrics['recall']:.3f} | {nb_metrics['f1-score']:.3f} |")
+                report.append(f"| | VADER Indonesia | {vader_metrics['precision']:.3f} | {vader_metrics['recall']:.3f} | {vader_metrics['f1-score']:.3f} |")
 
-        return report_text
+        report.append("")
+
+        # Speed Analysis
+        report.append("## ⚡ Speed Analysis")
+        report.append("")
+        report.append("| Metric | Indonesian Naive Bayes | VADER Indonesia |")
+        report.append("|--------|------------------------|-----------------|")
+        report.append(f"| Training Time | {self.test_results['training_time']:.2f} seconds | N/A (no training required) |")
+        report.append(f"| Prediction Time (avg) | {speed['naive_bayes_avg_time']:.4f} seconds | {speed['vader_avg_time']:.4f} seconds |")
+        report.append(f"| Prediction Time (std) | {speed['naive_bayes_std']:.4f} seconds | {speed['vader_std']:.4f} seconds |")
+        report.append("")
+
+        speed_winner = "VADER Indonesia" if speed['vader_avg_time'] < speed['naive_bayes_avg_time'] else "Indonesian Naive Bayes"
+        speed_ratio = max(speed['naive_bayes_avg_time'], speed['vader_avg_time']) / min(speed['naive_bayes_avg_time'], speed['vader_avg_time'])
+        report.append(f"**Speed Winner:** {speed_winner} ({speed_ratio:.1f}x faster)")
+        report.append("")
 
 
 def main():
