@@ -18,7 +18,7 @@ from indonesian_naive_bayes_analyzer import IndonesianNaiveBayesAnalyzer
 import sys
 import os
 sys.path.append('..')  # Add parent directory to path
-from sentiment_analysis_4_methods import VaderIndonesia
+from vader_indonesia import VaderIndonesia
 
 class SentimentAnalyzerComparison:
     """

@@ -1,0 +1,34 @@
+INDONESIAN SENTIMENT ANALYSIS COMPARISON REPORT
+============================================================
+Generated on: 2025-07-04 21:30:38
+
+EXECUTIVE SUMMARY
+--------------------
+Overall Winner: Naive Bayes
+Naive Bayes Overall F1: 0.3697
+VADER Indonesia Overall F1: 0.1535
+
+DETAILED RESULTS
+--------------------
+Training Data Performance:
+  Naive Bayes - Accuracy: 0.5556, F1: 0.5515
+  VADER Indonesia - Accuracy: 0.3333, F1: 0.1667
+
+Challenging Cases Performance:
+  Naive Bayes - Accuracy: 0.2000, F1: 0.1879
+  VADER Indonesia - Accuracy: 0.2667, F1: 0.1404
+
+Speed Comparison:
+  Training Time (Naive Bayes): 0.05 seconds
+  Prediction Time (Naive Bayes): 0.0840 seconds
+  Prediction Time (VADER): 0.0007 seconds
+  Speed Winner: VADER
+
+RECOMMENDATIONS
+--------------------
+• Use Naive Bayes for higher accuracy requirements
+• Naive Bayes shows better performance on complex cases
+• Consider training time if real-time deployment is needed
+• VADER is significantly faster for predictions
+• Consider ensemble approach combining both methods
+• Evaluate on your specific domain data before final decision
