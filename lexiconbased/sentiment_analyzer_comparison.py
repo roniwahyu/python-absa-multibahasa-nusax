@@ -779,6 +779,260 @@ class SentimentAnalyzerComparison:
         report.append(f"**Speed Winner:** {speed_winner} ({speed_ratio:.1f}x faster)")
         report.append("")
 
+        # Method Agreement Analysis
+        report.append("## 🤝 Method Agreement Analysis")
+        report.append("")
+        report.append(f"**Overall Agreement Rate:** {agreement_rate:.2%}")
+        report.append("")
+
+        # Find disagreements for analysis
+        disagreements = []
+        for i, (nb_pred, vader_pred, true_label) in enumerate(
+            zip(train_data['nb_predictions'], train_data['vader_predictions'], train_data['true_labels'])):
+            if nb_pred != vader_pred:
+                disagreements.append({
+                    'nb_pred': nb_pred,
+                    'vader_pred': vader_pred,
+                    'true_label': true_label,
+                    'nb_correct': nb_pred == true_label,
+                    'vader_correct': vader_pred == true_label
+                })
+
+        if disagreements:
+            nb_correct_in_disagreements = sum(1 for d in disagreements if d['nb_correct'])
+            vader_correct_in_disagreements = sum(1 for d in disagreements if d['vader_correct'])
+
+            report.append("### Disagreement Analysis")
+            report.append("")
+            report.append(f"- **Total Disagreements:** {len(disagreements)} out of {len(train_data['texts'])} examples")
+            report.append(f"- **Naive Bayes Correct in Disagreements:** {nb_correct_in_disagreements}/{len(disagreements)} ({nb_correct_in_disagreements/len(disagreements):.1%})")
+            report.append(f"- **VADER Correct in Disagreements:** {vader_correct_in_disagreements}/{len(disagreements)} ({vader_correct_in_disagreements/len(disagreements):.1%})")
+            report.append("")
+
+        # Strengths and Weaknesses
+        report.append("## 💪 Strengths and Weaknesses")
+        report.append("")
+
+        report.append("### Indonesian Naive Bayes Analyzer")
+        report.append("")
+        report.append("**Strengths:**")
+        report.append("- ✅ Combines multiple lexicon sources with TF-IDF features")
+        report.append("- ✅ Learns from training data for domain adaptation")
+        report.append("- ✅ Provides detailed feature analysis")
+        report.append("- ✅ Good performance on complex sentiment expressions")
+        report.append("")
+        report.append("**Weaknesses:**")
+        report.append("- ❌ Requires training time and labeled data")
+        report.append("- ❌ Slower prediction speed")
+        report.append("- ❌ More complex setup and dependencies")
+        report.append("")
+
+        report.append("### VADER Indonesia")
+        report.append("")
+        report.append("**Strengths:**")
+        report.append("- ✅ No training required - ready to use")
+        report.append("- ✅ Very fast predictions")
+        report.append("- ✅ Rule-based approach with interpretable results")
+        report.append("- ✅ Handles negation and intensifiers well")
+        report.append("")
+        report.append("**Weaknesses:**")
+        report.append("- ❌ Cannot adapt to specific domains without manual rule updates")
+        report.append("- ❌ Limited to lexicon-based features only")
+        report.append("- ❌ May struggle with complex or subtle sentiment expressions")
+        report.append("")
+
+        # Recommendations
+        report.append("## 🎯 Recommendations")
+        report.append("")
+
+        if nb_overall > vader_overall:
+            report.append("### Primary Recommendation: Indonesian Naive Bayes")
+            report.append("")
+            report.append("Based on the evaluation results, **Indonesian Naive Bayes Analyzer** shows superior performance:")
+            report.append("")
+            report.append("**Use Indonesian Naive Bayes when:**")
+            report.append("- Accuracy is the primary concern")
+            report.append("- You have labeled training data available")
+            report.append("- Training time is acceptable for your use case")
+            report.append("- You need to handle complex sentiment expressions")
+            report.append("- Domain-specific adaptation is important")
+            report.append("")
+            report.append("**Use VADER Indonesia when:**")
+            report.append("- Speed is critical (real-time applications)")
+            report.append("- No training data is available")
+            report.append("- Quick deployment is needed")
+            report.append("- Interpretability of rules is important")
+        else:
+            report.append("### Primary Recommendation: VADER Indonesia")
+            report.append("")
+            report.append("Based on the evaluation results, **VADER Indonesia** shows competitive performance with significant speed advantages:")
+            report.append("")
+            report.append("**Use VADER Indonesia when:**")
+            report.append("- Speed is critical (real-time applications)")
+            report.append("- No training data is available")
+            report.append("- Quick deployment is needed")
+            report.append("- Interpretability of rules is important")
+            report.append("")
+            report.append("**Use Indonesian Naive Bayes when:**")
+            report.append("- Maximum accuracy is required")
+            report.append("- You have sufficient training data")
+            report.append("- Training time is acceptable")
+            report.append("- Complex sentiment analysis is needed")
+
+        report.append("")
+        report.append("### Alternative Approaches")
+        report.append("")
+        report.append("**Ensemble Method:**")
+        report.append("- Combine both methods using weighted voting")
+        report.append("- Use VADER for initial filtering, Naive Bayes for uncertain cases")
+        report.append("- Leverage strengths of both approaches")
+        report.append("")
+        report.append("**Hybrid Approach:**")
+        report.append("- Use VADER for real-time processing")
+        report.append("- Use Naive Bayes for batch processing or detailed analysis")
+        report.append("- Switch methods based on confidence scores")
+        report.append("")
+
+        # Technical Details
+        report.append("## 🔧 Technical Details")
+        report.append("")
+
+        report.append("### Dataset Information")
+        report.append("")
+        report.append("| Dataset | Size | Positive | Negative | Neutral |")
+        report.append("|---------|------|----------|----------|---------|")
+
+        # Count sentiment distribution
+        train_sentiment_counts = pd.Series(train_data['true_labels']).value_counts()
+        challenge_sentiment_counts = pd.Series(challenge_data['true_labels']).value_counts()
+
+        report.append(f"| Training Data | {len(train_data['texts'])} | {train_sentiment_counts.get('positive', 0)} | {train_sentiment_counts.get('negative', 0)} | {train_sentiment_counts.get('neutral', 0)} |")
+        report.append(f"| Challenging Cases | {len(challenge_data['texts'])} | {challenge_sentiment_counts.get('positive', 0)} | {challenge_sentiment_counts.get('negative', 0)} | {challenge_sentiment_counts.get('neutral', 0)} |")
+        report.append("")
+
+        report.append("### Model Configuration")
+        report.append("")
+        report.append("**Indonesian Naive Bayes:**")
+        report.append("- Algorithm: MultinomialNB with alpha=1.0")
+        report.append("- Features: Lexicon-based (8 features) + TF-IDF (up to 5000 features)")
+        report.append("- Lexicon Sources: 9 different Indonesian lexicon datasets")
+        report.append("- Training Split: 80% train, 20% test")
+        report.append("")
+        report.append("**VADER Indonesia:**")
+        report.append("- Algorithm: Rule-based sentiment analysis")
+        report.append("- Lexicon: InSet Indonesian sentiment lexicon")
+        report.append("- Features: Sentiment scores, booster words, negation handling")
+        report.append("- Threshold: compound >= 0.05 (positive), <= -0.05 (negative)")
+        report.append("")
+
+        # Conclusion
+        report.append("## 📝 Conclusion")
+        report.append("")
+        report.append(f"This comprehensive evaluation compared two Indonesian sentiment analysis methods across multiple dimensions. ")
+        report.append(f"The **{winner}** emerged as the overall winner with an F1-score of {max(nb_overall, vader_overall):.4f}. ")
+        report.append("")
+        report.append("Key takeaways:")
+        report.append(f"- Both methods show {agreement_rate:.1%} agreement rate, indicating consistent performance")
+        report.append(f"- Speed difference: {speed_ratio:.1f}x in favor of {speed_winner}")
+        report.append(f"- Accuracy difference: {abs(nb_overall - vader_overall):.4f} F1-score points")
+        report.append("")
+        report.append("The choice between methods should be based on your specific requirements for accuracy, speed, and deployment constraints.")
+        report.append("")
+
+        # Footer
+        report.append("---")
+        report.append("")
+        report.append("*Report generated by Indonesian Sentiment Analysis Comparison Framework*")
+        report.append("")
+
+        report_text = "\n".join(report)
+
+        if save_to_file:
+            filename = 'sentiment_analysis_comparison_report.md'
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(report_text)
+            print(f"✓ Detailed Markdown report saved to '{filename}'")
+
+        return report_text
+
+    def _generate_text_report(self, save_to_file=True):
+        """Generate a detailed comparison report in text format (original format)"""
+        train_data = self.test_results['training_data']
+        challenge_data = self.test_results['challenging_data']
+
+        nb_overall = (train_data['naive_bayes']['f1_score'] + challenge_data['naive_bayes']['f1_score']) / 2
+        vader_overall = (train_data['vader']['f1_score'] + challenge_data['vader']['f1_score']) / 2
+
+        winner = "Naive Bayes" if nb_overall > vader_overall else "VADER Indonesia"
+
+        report = []
+        report.append("INDONESIAN SENTIMENT ANALYSIS COMPARISON REPORT")
+        report.append("=" * 60)
+        report.append(f"Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report.append("")
+
+        # Executive Summary
+        report.append("EXECUTIVE SUMMARY")
+        report.append("-" * 20)
+        report.append(f"Overall Winner: {winner}")
+        report.append(f"Naive Bayes Overall F1: {nb_overall:.4f}")
+        report.append(f"VADER Indonesia Overall F1: {vader_overall:.4f}")
+        report.append("")
+
+        # Detailed Results
+        report.append("DETAILED RESULTS")
+        report.append("-" * 20)
+
+        # Training data performance
+        report.append("Training Data Performance:")
+        report.append(f"  Naive Bayes - Accuracy: {train_data['naive_bayes']['accuracy']:.4f}, F1: {train_data['naive_bayes']['f1_score']:.4f}")
+        report.append(f"  VADER Indonesia - Accuracy: {train_data['vader']['accuracy']:.4f}, F1: {train_data['vader']['f1_score']:.4f}")
+        report.append("")
+
+        # Challenging cases performance
+        report.append("Challenging Cases Performance:")
+        report.append(f"  Naive Bayes - Accuracy: {challenge_data['naive_bayes']['accuracy']:.4f}, F1: {challenge_data['naive_bayes']['f1_score']:.4f}")
+        report.append(f"  VADER Indonesia - Accuracy: {challenge_data['vader']['accuracy']:.4f}, F1: {challenge_data['vader']['f1_score']:.4f}")
+        report.append("")
+
+        # Speed comparison
+        speed = self.test_results['speed']
+        report.append("Speed Comparison:")
+        report.append(f"  Training Time (Naive Bayes): {self.test_results['training_time']:.2f} seconds")
+        report.append(f"  Prediction Time (Naive Bayes): {speed['naive_bayes_avg_time']:.4f} seconds")
+        report.append(f"  Prediction Time (VADER): {speed['vader_avg_time']:.4f} seconds")
+        report.append(f"  Speed Winner: {'VADER' if speed['vader_avg_time'] < speed['naive_bayes_avg_time'] else 'Naive Bayes'}")
+        report.append("")
+
+        # Recommendations
+        report.append("RECOMMENDATIONS")
+        report.append("-" * 20)
+
+        if nb_overall > vader_overall:
+            report.append("• Use Naive Bayes for higher accuracy requirements")
+            report.append("• Naive Bayes shows better performance on complex cases")
+            report.append("• Consider training time if real-time deployment is needed")
+        else:
+            report.append("• Use VADER Indonesia for faster predictions")
+            report.append("• VADER requires no training time")
+            report.append("• Good choice for real-time applications")
+
+        if speed['vader_avg_time'] < speed['naive_bayes_avg_time']:
+            report.append("• VADER is significantly faster for predictions")
+
+        report.append("• Consider ensemble approach combining both methods")
+        report.append("• Evaluate on your specific domain data before final decision")
+
+        report_text = "\n".join(report)
+
+        if save_to_file:
+            filename = 'sentiment_analysis_comparison_report.txt'
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(report_text)
+            print(f"✓ Detailed text report saved to '{filename}'")
+
+        return report_text
+
 
 def main():
     """Main function to run the comparison"""
@@ -802,8 +1056,9 @@ def main():
     disagreements = comparison.analyze_specific_examples(5)
 
     # Generate detailed report
-    print("\nGenerating detailed report...")
-    report = comparison.generate_detailed_report()
+    print("\nGenerating detailed reports...")
+    markdown_report = comparison.generate_detailed_report(format='markdown')
+    text_report = comparison.generate_detailed_report(format='text')
 
     print("\n" + "="*60)
     print("COMPARISON COMPLETED SUCCESSFULLY!")
